@@ -1,0 +1,21 @@
+body{
+    max-width: 600px;
+}
+
+.title h2{
+    text-align: center;
+    color: coral;
+}
+.board{
+    display: none;
+}
+.buttons .button{
+    display: block;
+    padding: 5px;
+    line-height: 35px;
+    font-size: 20px;
+    text-align: center;
+    border: 2px solid #000;
+    border-radius: 6px;
+    margin-top: 4px;
+}
