@@ -65,7 +65,7 @@ function CreateA4(category) {
         [hardMin, hardMin2, hardMax, hardMax2] = [1, 1, 10, 10];
         //绘制公式的
         DrawFormula(Formula24, rowTotal, true);
-    }else if (category == 2) {
+    } else if (category == 2) {
         //10以内
         [hardMin, hardMin2, hardMax, hardMax2] = [1, 10, 10, 13];
         //绘制公式的
@@ -103,7 +103,7 @@ function Formula24() {
         lstSolution = Check24Solution(args);
     }
 
-    str1 = args[0] + "+" + args[1] + "+" + args[2] + "+" + args[3];
+    str1 = args[0] + ", " + args[1] + ", " + args[2] + ", " + args[3];
     //空格补齐
     str1 = MergeBlank(str1);
     return str1;
@@ -112,11 +112,20 @@ function Formula24() {
 //计算是否存在24解
 function Check24Solution(arr1) {
     let arrNumIdxs = rankFun([0, 1, 2, 3]);
-    // let arrNums = rankFun(arr1, 4);
-
-    let arrOps = rankFun(["+", "-", "x", "÷"], 3);
-    //console.log(arrNumIdxs);
-    // console.log(arrOps);
+    let arrOpbase = ["+", "-", "x", "÷"];
+    let arrOps2 = [];
+    for (let i = 0; i < 4; i++) {
+        let t1 = arrOpbase[i];
+        for (let j = 0; j < 4; j++) {
+            let t2 = arrOpbase[j];
+            for (let k = 0; k < 4; k++) {
+                let t3 = arrOpbase[k];
+                let arr1 = [t1, t2, t3];
+                arrOps2.push(arr1);
+            }
+        }
+    }
+    let arrOps = arrOps2;
     let lst1 = [];
 
     for (let i = 0; i < arrNumIdxs.length; i++) {
@@ -128,13 +137,25 @@ function Check24Solution(arr1) {
         for (let k = 0; k < arrOps.length; k++) {
             let obj1 = Calculate24(arrNum, arrOps[k]);
             if (obj1.v == 24) {
-               // console.log(obj1);
+                //console.log(obj1);
                 lst1.push(obj1);
             }
-        }
 
+            let obj2 = Calculate24B(arrNum, arrOps[k]);
+            if (obj2.v == 24) {
+                //console.log(obj2);
+                lst1.push(obj2);
+            }
+        }
     }
 
+    //去重复
+    let obj={};
+    lst1 = lst1.reduce(function (item, next) {
+        obj[next.t] ? '' : obj[next.t] = true && item.push(next);
+        return item;
+    }, []);
+ 
     return lst1;
 }
 
@@ -149,20 +170,10 @@ function Calculate24(arr1, ops1) {
             strRes = arr1[0] + "";
         }
         let op1 = ops1[i];
-        if (op1 == "+") {
-            dRes = dRes + arr1[i + 1];
-        } else if (op1 == "-") {
-            dRes = dRes - arr1[i + 1];
-        } else if (op1 == "x") {
-            dRes = dRes * arr1[i + 1];
-        } else if (op1 == "÷") {
-            dRes = dRes / arr1[i + 1];
-        } else {
-            dRes = dRes + arr1[i + 1];
-        }
+        dRes = Equation(dRes, arr1[i + 1], op1);
 
-        if((op1 == "x" || op1 == "÷") && (op2 == "+" || op2 == "-")){
-            if(strRes.indexOf("+")>=0 || strRes.indexOf("-") >= 0){
+        if ((op1 == "x" || op1 == "÷") && (op2 == "+" || op2 == "-")) {
+            if (strRes.indexOf("+") >= 0 || strRes.indexOf("-") >= 0) {
                 strRes = "(" + strRes + ")";
             }
         }
@@ -171,10 +182,46 @@ function Calculate24(arr1, ops1) {
         op2 = op1;
     }
 
-    return {v:dRes, t:strRes, arrNum:arr1, arrOp:ops1};
+    return { v: dRes, t: strRes, arrNum: arr1, arrOp: ops1 };
 }
 
+//前后计算
+function Calculate24B(arr1, ops1) {
+    let dRes = 0.0;
+    let strRes = "";
 
+    let dTmp1 = Equation(arr1[0], arr1[1], ops1[0]);
+    let dTmp2 = Equation(arr1[2], arr1[3], ops1[2]);
+    dRes = Equation(dTmp1, dTmp2, ops1[1]);
+
+    strRes = arr1[0] + ops1[0] + arr1[1];
+    if(ops1[0] == "+" || ops1[0] == "-"){
+        strRes = "("+strRes+")";
+    }
+    strRes += ops1[1];
+    if(ops1[2] == "+" || ops1[2] == "-"){
+        strRes +="(" +arr1[2] + ops1[2] + arr1[3]+")";
+    }else{
+        strRes += arr1[2] + ops1[2] + arr1[3];
+    }
+
+    return { v: dRes, t: strRes, arrNum: arr1, arrOp: ops1 };
+}
+
+function Equation(arg1, arg2, op1) {
+    let dRes = 0.0;
+    if (op1 == "+") {
+        dRes = arg1 + arg2;
+    } else if (op1 == "-") {
+        dRes = arg1 - arg2;
+    } else if (op1 == "x") {
+        dRes = arg1 * arg2;
+    } else if (op1 == "÷") {
+        dRes = arg1 / arg2;
+    }
+
+    return dRes;
+}
 
 //把输入和空白的进行组合
 function MergeBlank(inputStr, strLen) {
@@ -337,3 +384,7 @@ function rankFun(arrInput, len) {
     return arrOut;
 }
 
+//let arr1 = Check24Solution([4, 4, 4, 3]);
+//console.log(arr1);
+// let arr2 = Check24Solution([10, 8, 6, 5]);
+// console.log(arr2);
