@@ -44,6 +44,7 @@ var hardMin, hardMin2, hardMax, hardMax2;
 //公式的类型
 var formulaMode1, formulaMode2;
 var grade = 1;
+var m_hard = 1;
 
 function CreateA4(category) {
     var toastDlg = new Toast({
@@ -70,7 +71,19 @@ function CreateA4(category) {
         [hardMin, hardMin2, hardMax, hardMax2] = [1, 10, 10, 13];
         //绘制公式的
         DrawFormula(Formula24, rowTotal, true);
-    }
+    }else if (category == 3) {
+        //10以内 加减
+        m_hard = 3;
+        [hardMin, hardMin2, hardMax, hardMax2] = [1, 1, 10, 10];
+        //绘制公式的
+        DrawFormula(Formula24, rowTotal, true);
+    } else if (category == 4) {
+        //10以内 加减乘
+        m_hard = 4;
+        [hardMin, hardMin2, hardMax, hardMax2] = [1, 1, 10, 10];
+        //绘制公式的
+        DrawFormula(Formula24, rowTotal, true);
+    } 
     //二维码
     DrawImage('./qr.png', () => {
         toastDlg.Close();
@@ -113,6 +126,11 @@ function Formula24() {
 function Check24Solution(arr1) {
     let arrNumIdxs = rankFun([0, 1, 2, 3]);
     let arrOpbase = ["+", "-", "x", "÷"];
+    if(m_hard == 3){
+        arrOpbase = ["+", "-"];
+    }else if(m_hard == 4){
+        arrOpbase = ["+", "-", "x"];
+    }
     let arrOps2 = [];
     for (let i = 0; i < 4; i++) {
         let t1 = arrOpbase[i];
@@ -385,6 +403,7 @@ function rankFun(arrInput, len) {
 }
 
 //let arr1 = Check24Solution([4, 4, 4, 3]);
+//let arr1 = Check24Solution([2,2,2,7]);
 //console.log(arr1);
 // let arr2 = Check24Solution([10, 8, 6, 5]);
 // console.log(arr2);
